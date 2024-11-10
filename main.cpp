@@ -1,4 +1,3 @@
-// main.cpp
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include "image_processing.hpp"
@@ -45,7 +44,9 @@ int main() {
         return -1;
     }
 
-    char userChoice = '0';
+    char userChoice = '1';
+    displayMenu();
+    std::cout << "Enter your choice (or ESC to exit): ";
     while (true) {
         cv::Mat frame;
         cap.read(frame); // Capture a new frame
@@ -55,23 +56,19 @@ int main() {
             break;
         }
 
-        displayMenu();
-        std::cout << "Enter your choice (or ESC to exit): ";
-        std::cin >> userChoice;
 
         if (userChoice == 27) { // ESC key to exit
             break;
         }
 
         handleUserChoice(userChoice, frame);
-
-        if (cv::waitKey(1) == 27) { // Press ESC to exit live view
+        userChoice = cv::waitKey(1);
+        if (userChoice == 27) { // Press ESC to exit live view
             break;
         }
-
-        cv::destroyAllWindows(); // Close previous windows if any
     }
 
     cap.release(); // Release the camera
+    cv::destroyAllWindows(); // Close previous windows if any
     return 0;
 }
