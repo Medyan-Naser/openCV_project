@@ -16,6 +16,4 @@ void applyDilation(const cv::Mat& frame);
 void applyCanny(const cv::Mat& frame);
 void detectColor(const cv::Mat& frame);
 
-
-
 #endif // IMAGE_PROCESSING_HPP
