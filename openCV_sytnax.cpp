@@ -2,6 +2,7 @@
 #include <vector>
 #include <iostrem>
 
+
 // cv::imread function - Load an image from a file
 // Parameters:
 //   - filename: The path to the image file to be loaded (string).
