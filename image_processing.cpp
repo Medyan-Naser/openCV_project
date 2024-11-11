@@ -2,6 +2,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
+
 // Convert the frame to grayscale and display it
 void showGrayscale(const cv::Mat& frame) {
     cv::Mat grayscaleImage;
