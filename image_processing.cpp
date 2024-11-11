@@ -168,8 +168,9 @@ void applyCanny(const cv::Mat& frame) {
     std::cout << "Enter upper threshold for Canny: ";
     std::cin >> upperThreshold;
 
-    cv::Mat edges;
-    cv::Canny(frame, edges, lowerThreshold, upperThreshold); // Apply Canny edge detection
+    cv::Mat edges, imgGray;
+    cv::cvtColor(frame, imgGray, cv:COLOR_BGR2GRAY);
+    cv::Canny(imgGray, edges, lowerThreshold, upperThreshold); // Apply Canny edge detection
     cv::imshow("Canny Edge Detection", edges); // Display edge-detected image
 }
 
