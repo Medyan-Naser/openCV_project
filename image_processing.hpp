@@ -1,6 +1,7 @@
 #ifndef IMAGE_PROCESSING_HPP
 #define IMAGE_PROCESSING_HPP
 
+#include <string>
 #include <opencv2/opencv.hpp>
 
 void showGrayscale(const cv::Mat& frame);
@@ -14,6 +15,6 @@ void applyConvolution(const cv::Mat& frame, const cv::Mat& kernel);
 void applyErosion(const cv::Mat& frame, int kernelSize);
 void applyDilation(const cv::Mat& frame, int kernelSize);
 void applyCanny(const cv::Mat& frame, int lowerThreshold, int upperThreshold);
-void detectColor(const cv::Mat& frame, const cv::Scalar& lowerBound, const cv::Scalar& upperBound);
+void detectColor(const cv::Mat& frame, std::string choice, cv::Scalar& lowerBound, cv::Scalar& upperBound);
 
 #endif // IMAGE_PROCESSING_HPP

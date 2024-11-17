@@ -3,6 +3,10 @@
 #include "image_processing.hpp"
 #include <thread>
 #include <atomic>
+#include <string>
+
+
+// g++ -std=c++11 -o my_program main.cpp image_processing.cpp     -I/usr/local/include/opencv4     -L/usr/local/lib     -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_imgcodecs -lopencv_videoio
 
 struct ProcessingParams {
     int kernelSize = 15;
@@ -15,6 +19,8 @@ struct ProcessingParams {
     int cannyLowerThreshold = 50, cannyUpperThreshold = 150;
     cv::Scalar lowerBound = cv::Scalar(0, 0, 0); // Default lower bound for color detection
     cv::Scalar upperBound = cv::Scalar(255, 255, 255); // Default upper bound for color detection
+    std::string choice = "live";
+
 };
 
 
@@ -105,13 +111,15 @@ void gatherParameters(char choice, ProcessingParams &params) {
             std::cout << "Enter lower (R G B) and upper (R G B) color bounds (e.g., 0 0 0 255 255 255): ";
             std::cin >> params.lowerBound[0] >> params.lowerBound[1] >> params.lowerBound[2]
                      >> params.upperBound[0] >> params.upperBound[1] >> params.upperBound[2];
+            std::cout << "Do you want live frames or a trackbar? (live/trackbars) ";
+            std::cin >> params.choice;
             break;
         default:
             break;
     }
 }
 
-void handleUserChoice(char userChoice, const ProcessingParams &params, const cv::Mat &frame) {
+void handleUserChoice(char userChoice,  ProcessingParams &params, const cv::Mat &frame) {
     switch (userChoice) {
         case '1': showGrayscale(frame); break;
         case '2': showHSV(frame); break;
@@ -123,7 +131,7 @@ void handleUserChoice(char userChoice, const ProcessingParams &params, const cv:
         case '9': applyErosion(frame, params.erosionKernelSize); break;
         case 'A': applyDilation(frame, params.dilationKernelSize); break;
         case 'B': applyCanny(frame, params.cannyLowerThreshold, params.cannyUpperThreshold); break;
-        case 'C': detectColor(frame, params.lowerBound, params.upperBound); break;
+        case 'C': detectColor(frame, params.choice, params.lowerBound, params.upperBound); break;
         default: std::cout << "Invalid choice!" << std::endl; break;
     }
 }
