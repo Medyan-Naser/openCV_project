@@ -17,10 +17,12 @@ struct ProcessingParams {
     int erosionKernelSize = 3;
     int dilationKernelSize = 3;
     int cannyLowerThreshold = 50, cannyUpperThreshold = 150;
-    cv::Scalar lowerBound = cv::Scalar(0, 0, 0); // Default lower bound for color detection
-    cv::Scalar upperBound = cv::Scalar(255, 255, 255); // Default upper bound for color detection
-    std::string choice = "live";
-
+    // cv::Scalar lowerBound = cv::Scalar(0, 0, 0); // Default lower bound for color detection
+    // cv::Scalar upperBound = cv::Scalar(255, 255, 255); // Default upper bound for color detection
+    int lowerBound[3] = {0, 0, 0}; // Lower bound for color detection as int array
+    int upperBound[3] = {255, 255, 255}; // Upper bound for color detection as int array
+    
+    std::string choice = "BGR";
 };
 
 
@@ -111,7 +113,7 @@ void gatherParameters(char choice, ProcessingParams &params) {
             std::cout << "Enter lower (R G B) and upper (R G B) color bounds (e.g., 0 0 0 255 255 255): ";
             std::cin >> params.lowerBound[0] >> params.lowerBound[1] >> params.lowerBound[2]
                      >> params.upperBound[0] >> params.upperBound[1] >> params.upperBound[2];
-            std::cout << "Do you want live frames or a trackbar? (live/trackbars) ";
+            std::cout << "Choose a color format: (HSV/BGR) ";
             std::cin >> params.choice;
             break;
         default:
@@ -119,7 +121,23 @@ void gatherParameters(char choice, ProcessingParams &params) {
     }
 }
 
+void onTrackbarChange(int, void* userdata) {
+    // Callback function does nothing; it’s here to satisfy OpenCV’s API
+}
+
+
+
+void printScalar(const cv::Scalar &scalar, const std::string &name) {
+    std::cout << name << ": [";
+    for (int i = 0; i < 4; ++i) {
+        std::cout << scalar[i];
+        if (i < 3) std::cout << ", ";
+    }
+    std::cout << "]" << std::endl;
+}
+
 void handleUserChoice(char userChoice,  ProcessingParams &params, const cv::Mat &frame) {
+
     switch (userChoice) {
         case '1': showGrayscale(frame); break;
         case '2': showHSV(frame); break;
@@ -131,10 +149,36 @@ void handleUserChoice(char userChoice,  ProcessingParams &params, const cv::Mat 
         case '9': applyErosion(frame, params.erosionKernelSize); break;
         case 'A': applyDilation(frame, params.dilationKernelSize); break;
         case 'B': applyCanny(frame, params.cannyLowerThreshold, params.cannyUpperThreshold); break;
-        case 'C': detectColor(frame, params.choice, params.lowerBound, params.upperBound); break;
+        case 'C': {
+            // Create trackbars
+            // Create a window for color detection
+            const std::string windowName = "Color Detection";
+            cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
+            // Pair to hold references to bounds
+            std::string lowerLabel = "Lower " + std::string(1, params.choice[0]);
+            std::cout << lowerLabel << std::endl;
+            std::cout << params.choice[0] << std::endl;
+
+            cv::createTrackbar("Lower " + std::string(1, params.choice[0]), windowName, &params.lowerBound[0], 179, onTrackbarChange);
+            cv::createTrackbar("Lower " + std::string(1, params.choice[1]), windowName, &params.lowerBound[1], 255, onTrackbarChange);
+            cv::createTrackbar("Lower " + std::string(1, params.choice[2]), windowName, &params.lowerBound[2], 255, onTrackbarChange);
+            cv::createTrackbar("Upper " + std::string(1, params.choice[0]), windowName, &params.upperBound[0], 179, onTrackbarChange);
+            cv::createTrackbar("Upper " + std::string(1, params.choice[1]), windowName, &params.upperBound[1], 255, onTrackbarChange);
+            cv::createTrackbar("Upper " + std::string(1, params.choice[2]), windowName, &params.upperBound[2], 255, onTrackbarChange);
+
+
+            std::cout << params.lowerBound[0] << std::endl;
+
+            detectColor(frame, params.choice, params.lowerBound, params.upperBound); 
+            // printScalar(params.lowerBound, "Lower Bound");
+            // printScalar(params.upperBound, "Upper Bound");
+            break;
+        }
         default: std::cout << "Invalid choice!" << std::endl; break;
+    
     }
 }
+
 
 int main() {
     cv::VideoCapture cap(0); // Open the default camera (0)

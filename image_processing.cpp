@@ -2,6 +2,9 @@
 #include <iostream>
 #include <string>
 #include <opencv2/opencv.hpp>
+#include <algorithm>  // for std::transform
+#include <cctype>     // for std::toupper
+
 
 // Convert the frame to grayscale and display it
 void showGrayscale(const cv::Mat& frame) {
@@ -135,11 +138,11 @@ void applyCanny(const cv::Mat& frame, int lowerThreshold, int upperThreshold) {
 //     cv::bitwise_and(frame, frame, result, mask); // Apply the mask to the original frame
 //     cv::imshow("Detected Color", result); // Display the result
 // }
-void onTrackbarChange(int, void* userdata) {
-    // Callback function does nothing; it’s here to satisfy OpenCV’s API
-}
+// void onTrackbarChange(int, void* userdata) {
+//     // Callback function does nothing; it’s here to satisfy OpenCV’s API
+// }
 
-void detectColor(const cv::Mat &frame, std::string choice, cv::Scalar &lowerBound, cv::Scalar &upperBound) {
+void detectColor(const cv::Mat &frame, std::string choice, int (&lowerBound)[3], int (&upperBound)[3]) {
     // Create a window for color detection
     const std::string windowName = "Color Detection";
     cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
@@ -151,52 +154,34 @@ void detectColor(const cv::Mat &frame, std::string choice, cv::Scalar &lowerBoun
     int upperH = static_cast<int>(upperBound[0]);
     int upperS = static_cast<int>(upperBound[1]);
     int upperV = static_cast<int>(upperBound[2]);
+    // Update HSV bounds from trackbars
+    cv::Scalar lowerBoundn = cv::Scalar(lowerH, lowerS, lowerV);
+    cv::Scalar upperBoundn = cv::Scalar(upperH, upperS, upperV);
 
-    if (choice == "trackbars") {
+    // Convert choice to uppercase
+    std::transform(choice.begin(), choice.end(), choice.begin(), ::toupper);
 
-        // Create trackbars
-        cv::createTrackbar("Lower H", windowName, &lowerH, 179, onTrackbarChange);
-        cv::createTrackbar("Lower S", windowName, &lowerS, 255, onTrackbarChange);
-        cv::createTrackbar("Lower V", windowName, &lowerV, 255, onTrackbarChange);
-        cv::createTrackbar("Upper H", windowName, &upperH, 179, onTrackbarChange);
-        cv::createTrackbar("Upper S", windowName, &upperS, 255, onTrackbarChange);
-        cv::createTrackbar("Upper V", windowName, &upperV, 255, onTrackbarChange);
+    if (choice == "HSV") {
 
-        while (true) {
-            // Update HSV bounds from trackbars
-            lowerBound = cv::Scalar(lowerH, lowerS, lowerV);
-            upperBound = cv::Scalar(upperH, upperS, upperV);
+        cv::Mat hsv;
+        cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
 
-            // Convert frame to HSV
-            cv::Mat hsv;
-            cv::cvtColor(frame, hsv, cv::COLOR_BGR2HSV);
+        // Apply the color filter
+        cv::Mat mask;
+        cv::inRange(hsv, lowerBoundn, upperBoundn, mask);
 
-            // Apply the color filter
-            cv::Mat mask;
-            cv::inRange(hsv, lowerBound, upperBound, mask);
+        // Combine the mask with the original frame
+        cv::Mat result;
+        cv::bitwise_and(frame, frame, result, mask);
 
-            // Combine the mask with the original frame
-            cv::Mat result;
-            cv::bitwise_and(frame, frame, result, mask);
-
-            // Display the result
-            cv::imshow(windowName, result);
-
-            // Exit if 'ESC' is pressed
-            char key = static_cast<char>(cv::waitKey(1));
-            if (key == 27) {
-                break;
-            }
-        }
-
-        // Destroy the color detection window
-        cv::destroyWindow(windowName);
-    } else if (choice == "live"){
+        // Display the result on same window
+        cv::imshow(windowName, result);
+    } else if (choice == "RBG" || choice == "BGR"){
 
         cv::Mat mask, result;
-        cv::inRange(frame, lowerBound, upperBound, mask); // Mask the image based on the color range
+        cv::inRange(frame, lowerBoundn, upperBoundn, mask); // Mask the image based on the color range
         cv::bitwise_and(frame, frame, result, mask); // Apply the mask to the original frame
-        cv::imshow("Detected Color", result); // Display the result        
+        cv::imshow(windowName, result); // Display the result        
     }
 
     
