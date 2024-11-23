@@ -2,12 +2,25 @@
 
 This project provides real-time webcam processing, where the user can choose different image processing modes, such as grayscale, HSV, and blur, and see both the original live feed and the processed image simultaneously.
 
-The program continuously displays two windows:
+The user can switch between different modes in real-time while the webcam feed is live.
 
-1. The original webcam feed.
-2. The processed version of the feed, based on the selected mode (e.g., grayscale, HSV, blur).
+# Examples
 
-The user can switch between different modes in real-time while the webcam feed is live, with each new frame being processed and displayed in both windows simultaneously.
+## Color Detection using HSV
+
+<img src="GIFs/HSV_color_detection.gif" alt="Demo" width="600"/>
+
+## Color Detection using RGB
+<img src="GIFs/BGR_color_detection.gif" alt="Demo" width="600"/>
+
+## Color Isolation
+
+<img width="1267" alt="pink_shirt_HSV" src="https://github.com/user-attachments/assets/7f7c1438-605e-4298-ac48-7f8e9d590e0e">
+
+## Canny Edge Detection
+![canny_edge](https://github.com/user-attachments/assets/7f4fddaa-4896-4256-9687-47ae08ae46f5)
+
+
 
 # Features
 
